@@ -1,0 +1,311 @@
+<html>
+    <head>
+       
+        
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+  
+        function unescapeHtml(unsafe) {
+        return unsafe
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, "\"")
+        .replace(/&#39;/g, "'")
+        .replace(/&#34;/g, "\"")
+        }
+        function drawChart() {
+            var data2 = google.visualization.arrayToDataTable([
+            ['Year', 'Fear', 'Joy'],
+            ['2004',  1000,      400],
+            ['2005',  1170,      460],
+            ['2006',  660,       1120],
+            ['2007',  1030,      540]
+          ]);
+
+          var g= "{{urls}}";
+          var newline="{{line}}"
+          var array = [];
+          var newarray=[];
+          {% for url in urls%}
+              s = "{{url}}"
+              s = unescapeHtml(s)
+              array.push (s)
+          {% endfor %}
+
+          {% for url in line%}
+              w = "{{url}}"
+              w = unescapeHtml(w)
+              newarray.push(w)
+          {% endfor %}
+          
+          function findAvg(dict){
+            var avg=0;
+            var num=0;
+            for (var key in dict){
+              if (dict[key]!=0){
+                avg+=dict[key]
+                num+=1
+              }
+          }
+
+           return avg/num;
+        }
+          //alert ("After is " + array[0])
+          
+          var dictionary=[]
+          var second_dictionary=[]
+          for (let i=0; i<array.length;i++ ){
+            let g= JSON.parse(array[i]);
+            dictionary.push(g)
+          }
+          console.log('original'+dictionary)
+
+          for (let i=0; i<newarray.length;i++ ){
+            let g= JSON.parse(newarray[i]);
+            second_dictionary.push(g)
+          }
+          console.log('new dict'+second_dictionary)
+          
+         // console.log (dictionary)
+          
+          var year_fear={}
+          var year_positive={}
+          var year_neg={}
+          var year_trust={}
+          var year_fear2={}
+          var year_positive2={}
+          var year_neg2={}
+          var year_trust2={}
+          
+
+          y=2019
+          for(let x=0; x<dictionary.length; x++){
+            year_fear[y]=dictionary[x]['fear']
+            year_positive[y]=dictionary[x]['positive']
+            year_neg[y]=dictionary[x]['negative']
+            year_trust[y]=dictionary[x]['trust']
+            y+=1
+          }
+
+          y=2019
+
+          for(let x=0; x<second_dictionary.length; x++){
+            year_fear2[y]=second_dictionary[x]['fear']
+            year_positive2[y]=second_dictionary[x]['positive']
+            year_neg2[y]=second_dictionary[x]['negative']
+            year_trust2[y]=second_dictionary[x]['trust']
+            y+=1
+          }
+          
+          
+
+
+          var trust_graph= google.visualization.arrayToDataTable([
+            ['Year', '{{Word1}}', '{{Word2}}'],
+            ['2010',0,0],
+          ]);
+
+
+           for (var key in year_trust){
+              x=year_trust[key]
+              y=year_trust2[key]
+              //console.log(x)
+              //console.log(key)
+              //console.log([key,x])
+              var avg=0;
+              if(x==0){
+                x=findAvg(year_trust)
+              }
+
+              if(y==0){
+                y=findAvg(year_trust2)
+              }
+              
+              trust_graph.addRow( [key, x,y]);
+              //alert("key is" + y)
+          }
+          var options = {
+            title: 'Trust Index Over Time',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            vAxis:{
+              minValue:-0.1,
+              maxValue:0.5
+            }
+          };
+          trust_graph.removeRow(0)
+          elem = document.getElementById('tru')
+         // alert ('Elem is ' + elem)
+
+          
+          var chart = new google.visualization.LineChart(elem);
+  
+          chart.draw(trust_graph, options);
+
+
+
+
+
+
+
+          var negative_graph= google.visualization.arrayToDataTable([
+            ['Year', '{{Word1}}', '{{Word2}}'],
+            ['2010',0,0],
+          ]);
+
+          for (var key in year_neg) {
+              x=year_neg[key]
+              y=year_neg2[key]
+              //console.log(x)
+              //console.log(key)
+              //console.log([key,x,y])
+              if(x==0){
+                x=findAvg(year_neg)
+              }
+
+              if(y==0){
+                y=findAvg(year_neg2)
+              }
+              
+              negative_graph.addRow( [key, x,y]);
+          }
+          var options = {
+            title: 'Negativity Index Over Time',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            vAxis:{
+              minValue:-0.1,
+              maxValue:0.5
+            }
+          };
+          negative_graph.removeRow(0)
+          elem = document.getElementById('neg')
+         // alert ('Elem is ' + elem)
+
+          
+          var chart = new google.visualization.LineChart(elem);
+  
+          chart.draw(negative_graph, options);
+
+
+
+
+
+
+
+
+          var positive_graph= google.visualization.arrayToDataTable([
+            ['Year','{{Word1}}','{{Word2}}'],
+            ['2010',0,0],
+
+
+
+          ]);
+
+
+          for (var key in year_positive) {
+              x=year_positive[key]
+              //console.log(x)
+              //console.log(key)
+              console.log([key,x])
+              y=year_positive2[key]
+              if(x==0){
+                x=findAvg(year_positive)
+              }
+
+              if(y==0){
+                y=findAvg(year_positive2)
+              }
+              positive_graph.addRow( [key, x,y]);
+          }
+          var options = {
+            title: 'Positivity Index Over Time',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            vAxis:{
+              minValue:-0.1,
+              maxValue:0.5
+            }
+          };
+          positive_graph.removeRow(0)
+          elem = document.getElementById('pos')
+          //alert ('Elem is ' + elem)
+          var chart = new google.visualization.LineChart(elem);
+  
+          chart.draw(positive_graph, options);
+          //console.log(data)
+
+
+          var data= google.visualization.arrayToDataTable([
+            ['Year','{{Word1}}','{{Word2}}'],
+            ['2010', 0,0],
+            
+            //{% for key,value in year_fear%}
+            //  ['{{key}}',{{value}}],
+
+            //{% endfor %}
+            
+            
+            
+
+            
+          ]);
+          for (var key in year_fear) {
+              x=year_fear[key]
+              y=year_fear2[key]
+              //console.log(x)
+              //console.log(key)
+              console.log([key,x])
+              if(x==0){
+                x=findAvg(year_fear)
+              }
+
+              if(y==0){
+                y=findAvg(year_fear2)
+              }
+              
+              data.addRow( [key, x,y]);
+          }
+          data.removeRow(0)
+          console.log(data)
+
+         
+          //data.addColumn('number','Year');
+          //data.addColumn('number', 'Fear');
+          
+          
+          //alert(data)
+          //System.out.println(data)
+  
+          var options = {
+            title: 'Fear Index Over Time',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+
+            vAxis:{
+              minValue:-0.1,
+              maxValue:0.5
+            }
+          };
+  
+          elem = document.getElementById('curve_chart')
+          //alert ('Elem is ' + elem)
+          var chart = new google.visualization.LineChart(elem);
+  
+          chart.draw(data, options);
+        }
+        
+      </script>
+    </head>
+    <body>
+
+      <div id="curve_chart" style="width: 800px; height: 500px"></div>
+      <div id="pos" style="width: 800px; height: 500px;"></div>
+      <div id="neg" style="width: 800px; height: 520px; position: absolute; top:0; right:0"></div>
+      <div id="tru" style="width: 800px; height:500px; position:absolute; top: 503; right:0"></div>
+    </body>
+  </html>
+  
